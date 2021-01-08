@@ -1,0 +1,11 @@
+.icon {
+  color: #0070f3;
+}
+
+.icon:hover {
+  cursor: pointer;
+}
+
+.icon.inactive {
+  color: #b3b3b3;
+}

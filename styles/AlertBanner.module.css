@@ -1,0 +1,27 @@
+.success {
+  background-color: #0070f3;
+}
+
+.error {
+  background-color: #f44336;
+}
+
+.alert {
+  color: white;
+  /* height: 100%; */
+  width: 60%;
+  padding: 20px;
+
+  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+
+  display: none;
+}
+
+.alert.display {
+  display: inintial;
+}

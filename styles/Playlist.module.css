@@ -1,0 +1,101 @@
+.container {
+  margin-top: -50px;
+  padding: 0 50px;
+}
+
+.description {
+  font-size: 20px;
+  text-align: center;
+}
+
+.song:first-child {
+  /* font-weight: bold; */ /* causing columns to be out of alignment */
+  background-color: #0070f3;
+  color: white;
+}
+
+.song:first-child > div {
+  text-align: left;
+}
+
+.song:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.songs {
+  margin: auto;
+  margin-top: 20px;
+  width: 80%;
+}
+
+.song {
+  display: flex;
+}
+
+@media only screen and (max-width: 1630px) {
+  .song > div {
+    flex: 0.2;
+  }
+}
+
+.title,
+.artist,
+.album,
+.length,
+.date,
+.actions {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  margin-top: -1px; /* account for border overlap */
+  margin-left: -1px; /* account for border overlap */
+}
+
+.title {
+  flex: 0.3;
+}
+
+.artist {
+  flex: 0.25;
+}
+
+.album {
+  flex: 0.3;
+}
+
+.length {
+  flex: 0.05;
+}
+
+.date {
+  flex: 0.1;
+}
+
+.actions {
+  flex: 0.05;
+  text-align: center;
+}
+
+.actions .icon {
+  display: inline-block;
+  width: 50%;
+}
+
+.icon.remove {
+  color: #f44336;
+}
+
+.icon.remove:hover {
+  cursor: pointer;
+}
+
+.songs a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.songs a:hover,
+.songs a:focus,
+.songs a:active {
+  text-decoration: underline;
+  cursor: pointer;
+}

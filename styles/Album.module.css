@@ -1,0 +1,95 @@
+.container {
+  margin-top: -50px;
+  padding: 0 50px;
+}
+
+.artists {
+  font-size: 20px;
+  text-align: center;
+}
+
+.artists a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.artists a:hover,
+.artists a:focus,
+.artists a:active {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.extraArtists {
+  font-size: 14px;
+}
+
+.extraArtists a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.extraArtists a:hover,
+.extraArtists a:focus,
+.extraArtists a:active {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.song:first-child {
+  /* font-weight: bold; */ /* causing columns to be out of alignment */
+  background-color: #0070f3;
+  color: white;
+}
+
+.song:first-child > div {
+  text-align: left;
+}
+
+.song:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.songs {
+  margin: auto;
+  margin-top: 20px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.song {
+  display: flex;
+}
+
+.title,
+.length,
+.actions {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  margin-top: -1px; /* account for border overlap */
+  margin-left: -1px; /* account for border overlap */
+}
+
+.title {
+  flex: 0.6;
+}
+
+.length {
+  flex: 0.2;
+}
+
+.actions {
+  flex: 0.2;
+  text-align: center;
+  display: flex;
+}
+
+.actions i {
+  display: inline-block;
+  width: 50%;
+  color: #0070f3;
+}
+
+.actions i:hover {
+  cursor: pointer;
+}

@@ -1,0 +1,133 @@
+.container {
+  width: 80%;
+  margin: auto;
+}
+
+.searchBar {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.searchBar > div {
+  margin-left: 10px;
+}
+
+.sectionTitle {
+  font-size: 25px;
+  text-align: center;
+}
+
+.icon {
+  font-size: 30px;
+  margin: 0 5px;
+}
+
+.active {
+  color: #0070f3;
+}
+
+.icon:hover {
+  cursor: pointer;
+}
+
+.results {
+  margin-top: 40px;
+}
+
+/* Artist results */
+.artists,
+.albums {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.artists .artist {
+  width: 300px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #eaeaea;
+  border-radius: 50px;
+  margin: 10px;
+  background-color: #eaeaea;
+  transition: background-color, 1s;
+}
+
+.artists .artist:hover {
+  cursor: pointer;
+  background: #b1b1b1;
+  transition: background-color, 0.5s;
+}
+
+.artists .artistName {
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.artists .artistImg {
+  object-fit: cover;
+  width: 60px;
+  height: 60px;
+  border-radius: 100%;
+}
+
+/* Tracks results */
+.tracks {
+  margin: auto;
+  margin-top: 20px;
+  width: 80%;
+}
+
+.tracks .track {
+  display: flex;
+}
+
+.tracks .track:first-child {
+  background-color: #0070f3;
+  color: white;
+}
+
+.tracks .track:first-child > div {
+  text-align: left;
+}
+
+.tracks .track:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.tracks .title,
+.tracks .artist,
+.tracks .album,
+.tracks .length,
+.tracks .actions {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  margin-top: -1px; /* account for border overlap */
+  margin-left: -1px; /* account for border overlap */
+  flex: 0.2;
+}
+
+.tracks .actions {
+  text-align: center;
+}
+
+.tracks .actions .icon {
+  display: inline-block;
+  width: 50%;
+  color: #0070f3;
+}
+
+.tracks a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.tracks a:hover,
+.tracks a:focus,
+.tracks a:active {
+  text-decoration: underline;
+  cursor: pointer;
+}
