@@ -1,6 +1,6 @@
 # About
 
-This is a simple tool for managing Spotify playlists in bulk. For security reasons, I have limited the application to only running in developer mode, but if anyone would like to expand this project to a web application for a dedicated web server, feel free.
+This is a simple NextJS web application for managing Spotify playlists in bulk. For security reasons, I have limited the application to only running in developer mode, but if anyone would like to expand this project to a web application for a dedicated web server, feel free.
 
 # Setup
 
