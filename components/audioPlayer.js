@@ -2,12 +2,27 @@
 import { useState, useEffect } from 'react'
 import styles from '../styles/AudioPlayer.module.css'
 
-const useAudio = url => {
+const useAudio = (url, isPlaying, updatePlaying) => {
   if (!url) return [undefined, undefined]
   const [audio] = useState(new Audio(url))
   const [playing, setPlaying] = useState(false)
 
-  const toggle = () => setPlaying(!playing)
+  // const toggle = () => setPlaying(!playing)
+  const toggle = () => {
+    if (playing) {
+      // turn off
+      updatePlaying(false)
+      setPlaying(false)
+    } else {
+      // turn all audios off
+      // then turn this one on
+      updatePlaying(false)
+      setTimeout(() => {
+        setPlaying(true)
+        updatePlaying(true)
+      }, 100);
+    }
+  }
 
   useEffect(() => {
     playing ? audio.play() : audio.pause()
@@ -16,6 +31,7 @@ const useAudio = url => {
     return () => {
       if (playing) {
         setPlaying(false)
+        updatePlaying(false)
       }
     }
   }, [playing])
@@ -31,17 +47,14 @@ const useAudio = url => {
   return [playing, toggle]
 }
 
-const Player = ({ url, refresh }) => {
-  const [playing, toggle] = useAudio(url)
+const Player = ({ url, isPlaying, updatePlaying }) => {
+  const [playing, toggle] = useAudio(url, isPlaying, updatePlaying)
 
-  // stop audio if refresh prop changes
   useEffect(() => {
-    return () => {
-      if (playing) {
-        toggle()
-      }
+    if (!isPlaying && playing) {
+      toggle()
     }
-  }, [refresh])
+  }, [isPlaying])
 
   return (<>
     <i

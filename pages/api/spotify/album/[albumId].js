@@ -15,6 +15,9 @@ export default async function handler(req, res) {
     return
   }
 
+  // switching logic isn't working (but for now that's ok, maybe fix later for optimization)
+  // see /playlist/[playlistId] for correct implementation of params
+
   let playlist
   if (req.body.tracks) {
     playlist = await getAlbumTracks(albumId, session.accessToken)

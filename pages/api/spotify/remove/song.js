@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return
   }
 
-  if (!req.body.playlistId || !req.body.index || !req.body.snapshotId) {
+  if (!req.body.playlistId || !req.body.snapshotId) {
     res.status(401)
     res.setHeader('Content-Type', 'text/html')
     res.end('Invalid body')

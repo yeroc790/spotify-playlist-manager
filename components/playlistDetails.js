@@ -1,4 +1,4 @@
-import styles from '../styles/NewPlaylist.module.css'
+import styles from '../styles/PlaylistDetails.module.css'
 import { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -10,35 +10,52 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 
-export default function NewPlaylist({ addPlaylist }) {
+export default function PlaylistDetails({ submit, newForm=false, button=false, icon=false, openTrigger=null, defaultName='', defaultDesc='', defaultIsPublic=false, playlistId='' }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [isPrivate, setIsPrivate] = useState(false)
+  const [isPublic, setIsPublic] = useState(false)
 
   useEffect(() => {
-    if (open) return
-    setName('')
-    setDescription('')
-    setIsPrivate(false)
+    setName(defaultName)
+    setDescription(defaultDesc)
+    setIsPublic(defaultIsPublic)
   }, [open])
 
-  const handleClickOpen = () => {
+  useEffect(() => {
+    if (openTrigger == null) return
+    setOpen(openTrigger)
+  }, [openTrigger])
+
+  const handleClickOpen = (e) => {
+    if (!e) e = window.event
+    e.cancelBubble = true
+    if (e.stopPropagation) e.stopPropagation()
+
     setOpen(true)
   }
 
-  const handleClose = () => {
+  const handleClose = (e) => {
+    if (!e) e = window.event
+    e.cancelBubble = true
+    if (e.stopPropagation) e.stopPropagation()
+
     setOpen(false)
   }
 
-  const createPlaylist = () => {
+  const handleSubmit = (e) => {
+    if (!e) e = window.event
+    e.cancelBubble = true
+    if (e.stopPropagation) e.stopPropagation()
     if (!name) return
+
     let info = {
       name: name,
       description: description,
-      isPrivate: isPrivate
+      isPublic: isPublic
     }
-    addPlaylist(info)
+    if (playlistId) info.playlistId = playlistId
+    submit(info)
     setOpen(false)
   }
 
@@ -51,19 +68,28 @@ export default function NewPlaylist({ addPlaylist }) {
   }
 
   const handlePrivateChange = () => {
-    setIsPrivate(!isPrivate)
+    setIsPublic(!isPublic)
   }
 
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        New Playlist
-      </Button>
+      {button &&
+        <Button className={styles.button} variant="outlined" color="primary" onClick={handleClickOpen}>
+          {newForm ? 'New' : 'Edit'} Playlist
+        </Button>  
+      }
+      {icon &&
+        <i 
+          className="material-icons"
+          onClick={handleClickOpen}
+        >edit</i>
+      }
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" className={styles.dialog}>
-        <DialogTitle id="form-dialog-title" className={styles.title}>New Playlist</DialogTitle>
+        <DialogTitle id="form-dialog-title" className={styles.title}>{newForm ? 'New' : 'Edit'} Playlist</DialogTitle>
         <DialogContent className={styles.content}>
           <DialogContentText>
-            Please enter a name and optional description for your new playlist.
+            {newForm && 'Please enter a name and optional description for your new playlist.'}
+            {!newForm && 'Update playlist details. Name is required.'}
           </DialogContentText>
           <TextField
             autoFocus
@@ -92,7 +118,7 @@ export default function NewPlaylist({ addPlaylist }) {
           <FormControlLabel
             control={
               <Checkbox
-                checked={isPrivate}
+                checked={!isPublic}
                 onChange={handlePrivateChange}
                 name="private"
                 color="primary"
@@ -105,8 +131,8 @@ export default function NewPlaylist({ addPlaylist }) {
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={createPlaylist} color="primary">
-            Create Playlist
+          <Button onClick={handleSubmit} color="primary">
+            {newForm ? 'Create' : 'Edit'} Playlist
           </Button>
         </DialogActions>
       </Dialog>

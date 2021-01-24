@@ -2,17 +2,44 @@ import styles from '../styles/Album.module.css'
 import AudioPlayer from '../components/audioPlayer'
 import ActionIcon from '../components/actionIcon'
 import Image from './image'
-import { formatLengthMs } from '../lib/utils'
-import useSWR from 'swr'
+import { formatLengthMs, isEmptyObject, fetchPath } from '../lib/utils'
+import { useState, useEffect } from 'react'
 
 const url = 'http://localhost:3000/api/spotify/album/'
 
 export default function Albums(props) {
-  if (!props.albumID) return <div>Invalid album id</div>
-  let path = url + props.albumID
-  const { data: album, error } = useSWR(path)
-  if (error) return <div className='message'>Error fetching album</div>
-  if (!album) return <div className='message'>Loading...</div>
+  const [album, setAlbum] = useState({})
+
+  useEffect(() => {
+    loadData()
+  }, [props.savedTracks])
+
+  // takes album object and formats it
+  const parseTracks = (data) => {
+    if (!data.tracks) return data
+
+    // set inPlaylist property for each track
+    let items = data.tracks.items.map(track => {
+      // if (props.savedTracks.indexOf(track.uri) != -1)
+      if (props.savedTracks.has(track.uri))
+        track.inPlaylist = true
+      else track.inPlaylist = false
+      return track
+    })
+    data.tracks.items = items
+    setAlbum(data)
+    console.log('got album: ', album)
+  }
+  
+  const loadData = () => {
+    let path = url + props.albumID
+    fetchPath(path).then(data => {
+      data && parseTracks(data)
+    }).catch(error => {
+      console.log('Error fetching album: ', error)
+      return <div className="message">Error fetching album</div>
+    })
+  }
 
   const filterArtists = (artists) => {
     let arr = artists.filter(artist => {
@@ -21,7 +48,8 @@ export default function Albums(props) {
     })
     return arr
   }
-
+  
+  if (isEmptyObject(album)) return <div className="message">Loading...</div>
   return (
     <div className={styles.container}>
       {/* image */}
@@ -78,6 +106,7 @@ export default function Albums(props) {
                     icon="add"
                     onClick={() => props.addSong(song)}
                     isError={props.isError}
+                    inPlaylist={song.inPlaylist}
                   />
                 </div>
               </div>

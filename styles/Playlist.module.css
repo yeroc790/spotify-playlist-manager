@@ -3,18 +3,30 @@
   padding: 0 50px;
 }
 
+.imageContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageContainer .backArrow i,
+.imageContainer .nextArrow i {
+  font-size: 50px !important;
+}
+
+.imageContainer .backArrow,
+.imageContainer .nextArrow {
+  width: 50px;
+}
+
 .description {
   font-size: 20px;
   text-align: center;
 }
 
-.song:first-child {
-  /* font-weight: bold; */ /* causing columns to be out of alignment */
-  background-color: #0070f3;
+.song.header {
+  background-color: #0070f3 !important;
   color: white;
-}
-
-.song:first-child > div {
   text-align: left;
 }
 
@@ -51,7 +63,7 @@
 }
 
 .title {
-  flex: 0.3;
+  flex: 0.25;
 }
 
 .artist {
@@ -59,7 +71,7 @@
 }
 
 .album {
-  flex: 0.3;
+  flex: 0.25;
 }
 
 .length {
@@ -71,13 +83,13 @@
 }
 
 .actions {
-  flex: 0.05;
+  flex: 0.1;
   text-align: center;
 }
 
-.actions .icon {
+.actions i {
   display: inline-block;
-  width: 50%;
+  margin: 0 5px;
 }
 
 .icon.remove {

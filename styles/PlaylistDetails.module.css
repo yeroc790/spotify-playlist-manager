@@ -1,0 +1,10 @@
+/* Dialog */
+.dialog > div > div {
+  width: 50%;
+  max-width: 600px;
+}
+
+.button {
+  color: #0070f3 !important;
+  border-color: #0070f3 !important;
+}

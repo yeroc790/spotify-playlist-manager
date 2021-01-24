@@ -32,6 +32,8 @@ const options = {
         return prevToken
       }
 
+      console.log('now: ', new Date().toLocaleTimeString('en-US'))
+      console.log('expires: ', new Date(prevToken.accessTokenExpires).toLocaleTimeString('en-US'))
       // access token has expired, try to update it
       return refreshAccessToken(prevToken)
     },

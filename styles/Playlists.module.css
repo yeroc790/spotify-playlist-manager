@@ -6,6 +6,50 @@
 .newPlaylist {
   text-align: center;
   margin-bottom: 20px;
+
+  /* pagination */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newPlaylist .backArrow i,
+.newPlaylist .nextArrow i {
+  font-size: 50px !important;
+}
+
+.newPlaylist .backArrow,
+.newPlaylist .nextArrow {
+  width: 50px;
+}
+
+.iconContainer {
+  z-index: 999;
+  position: absolute;
+  /* right: 20px; */
+  /* margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0; */
+  right: 30px;
+  top: 50%;
+  bottom: 50%;
+  display: flex;
+  align-items: center;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.15s linear;
+}
+
+.playlist:hover .iconContainer {
+  visibility: visible;
+  opacity: 1;
+}
+
+.iconContainer i {
+  color: #0070f3;
 }
 
 .playlists {
@@ -16,12 +60,33 @@
 }
 
 .playlist {
+  position: relative;
+  margin: 20px;
+}
+
+.playlist .playlistInfo {
   width: 300px;
+  height: 100%;
   display: flex;
   align-items: center;
   border: 1px solid #eaeaea;
   border-radius: 10px;
-  margin: 20px;
+
+  opacity: 1;
+  transition: opacity 0.15s linear;
+}
+
+.playlist:hover .playlistInfo {
+  opacity: 0.3;
+}
+
+.playlist.disabled .playlistInfo {
+  background-color: #ccc;
+  opacity: 0.5;
+}
+
+.playlist.disabled:hover {
+  cursor: default;
 }
 
 .playlist:hover {

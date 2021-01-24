@@ -37,14 +37,11 @@ export default function Home({ loginURL }) {
             <p className={styles.description}>
               Get started by <a href={loginURL}>signing in to Spotify</a>
             </p>
-            {/* <p className={styles.description}>
-              Get started by <a onClick={() => signIn()}>signing in to Spotify with NextAuth</a>
-            </p> */}
           </>}
 
           {session && <>
             <p className={styles.description}>
-              Signed in as {session.user.display_name}. <Link href="/dashboard">Go to dashboard</Link>
+              Signed in as {session.user.display_name}. <Link href="/dashboard">Go to dashboard</Link> to get started!
             </p>
           </>}
 

@@ -1,4 +1,4 @@
-import { createPlaylist } from '../../../../lib/spotifyApi'
+import { editPlaylist } from '../../../../lib/spotifyApi'
 import { getSession } from 'next-auth/client'
 
 export default async function handler(req, res) {
@@ -23,12 +23,12 @@ export default async function handler(req, res) {
   if (!req.body.isPublic) isPublic = false 
 
   try {
-    await createPlaylist(req.body.name, desc, isPublic, session.accessToken)
+    await editPlaylist(req.body.playlistId, req.body.name, desc, isPublic, session.accessToken)
   } catch (error) {
-    console.log('error adding playlist: ', error)
+    console.log('error editing playlist: ', error)
     res.status(401)
     res.setHeader('Content-Type', 'text/html')
-    res.end('Error adding playlist')
+    res.end('Error editing playlist')
     return
   }
 

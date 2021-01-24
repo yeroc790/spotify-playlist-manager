@@ -11,22 +11,18 @@ export default function Search(props) {
   const [albums, setAlbums] = useState('')
   const [results, setResults] = useState()
 
-  const path = 'http://localhost:3000/api/spotify/search/' + props.input + '/' + props.type
-
   // on input change
   useEffect(() => {
     if (!props.input) {
       clearResults()
       return
     }
-    fetchPath(path).then(data => {
-      data && setResults(data)
-    })
+    loadResults()
   }, [props.input])
 
   // on results change
   useEffect(() => {
-    if (!results) {
+    if (!results || !props.input) {
       clearResults()
       return
     }
@@ -43,11 +39,17 @@ export default function Search(props) {
 
   // on type change
   useEffect(() => {
+    loadResults()
+  }, [props.type])
+
+  const loadResults = () => {
     if (!props.input) return
+    let input = encodeURIComponent(props.input)
+    let path = 'http://localhost:3000/api/spotify/search/' + input + '/' + props.type
     fetchPath(path).then(data => {
       data && setResults(data)
     })
-  }, [props.type])
+  }
 
   // clears all hooks by default, or ones passed in array
   const clearResults = (arr) => {

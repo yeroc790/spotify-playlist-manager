@@ -1,13 +1,20 @@
 import styles from '../styles/ActionIcon.module.css'
 import { useState, useEffect } from 'react'
 
-export default function ActionIcon({icon, onClick, color, isError, header=null}) {
+export default function ActionIcon({icon, onClick, color, isError, header=null, inPlaylist=false, changeAfterClick=true, resetOnClick=false, resetTime=null}) {
   const [disabled, setDisabled] = useState(false)
   const [iconName, setIconName] = useState(icon)
 
   if (!color) color = '#0070f3'
 
-  // reset icon
+  useEffect(() => {
+    if (inPlaylist) {
+      setDisabled(true)
+      setIconName('check')
+    }
+  }, [inPlaylist])
+
+  // reset icon on error
   useEffect(() => {
     if (isError) {
       console.log('error, resetting icon')
@@ -19,11 +26,18 @@ export default function ActionIcon({icon, onClick, color, isError, header=null})
   const handleClick = (e) => {
     if (disabled) return
     setDisabled(true)
-    setIconName('check')
+    if (changeAfterClick) setIconName('check')
     onClick(e)
+
+    if (resetOnClick) {
+      setTimeout(() => {
+        setDisabled(false)
+      }, (resetTime ? resetTime : 2000));
+    }
   }
 
-  const style = {
+  
+  let style = {
     color: color
   }
 

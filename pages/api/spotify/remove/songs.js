@@ -1,4 +1,4 @@
-import { createPlaylist } from '../../../../lib/spotifyApi'
+import { removeSongs } from '../../../../lib/spotifyApi'
 import { getSession } from 'next-auth/client'
 
 export default async function handler(req, res) {
@@ -10,25 +10,20 @@ export default async function handler(req, res) {
     return
   }
 
-  if (!req.body.name) {
+  if (!req.body.playlistId || !req.body.tracks || !req.body.snapshotId) {
     res.status(401)
     res.setHeader('Content-Type', 'text/html')
     res.end('Invalid body')
     return
   }
 
-  let desc = ''
-  let isPublic = true
-  if (req.body.description) desc = req.body.description
-  if (!req.body.isPublic) isPublic = false 
-
   try {
-    await createPlaylist(req.body.name, desc, isPublic, session.accessToken)
+    await removeSongs(req.body.playlistId, req.body.tracks, req.body.snapshotId, session.accessToken)
   } catch (error) {
-    console.log('error adding playlist: ', error)
+    console.log('error removing songs: ', error)
     res.status(401)
     res.setHeader('Content-Type', 'text/html')
-    res.end('Error adding playlist')
+    res.end('Error removing songs')
     return
   }
 
