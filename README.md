@@ -14,14 +14,7 @@ Clone this repository to your own computer by entering the following commands
 After doing this, go to [Spotify's Developer Dashboard](https://developer.spotify.com/dashboard/login) and create a new app.
 After completing setup you should have a Client ID and a Client Secret.
 
-Create a file in the base folder and name it `.env.local`, and then add the following lines:
-```
-CLIENT_ID=[your client id here]
-CLIENT_SECRET=[your client secret here]
-NEXTAUTH_URL=http://localhost:3000/
-REDIRECT_URI=http://localhost:3000/api/auth/callback/spotify
-STATE=[random string with no special characters]
-```
+Rename the file named `.env.test.local` to `.env.local`, and then add the Client ID and Client Secret that you just got.
 You also need to generate a random string with no special characters to use for the STATE variable in the .env file.
 
 Finally, click "Edit Settings" on your Spotify Dashboard for your new app, and `http://localhost:3000/api/auth/callback/spotify` under Redirect URIs.
