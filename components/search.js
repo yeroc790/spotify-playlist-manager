@@ -10,6 +10,7 @@ export default function Search(props) {
   const [artists, setArtists] = useState('')
   const [albums, setAlbums] = useState('')
   const [results, setResults] = useState()
+  const [playing, setPlaying] = useState(false)
 
   // on input change
   useEffect(() => {
@@ -157,7 +158,11 @@ export default function Search(props) {
                     </div>
                     <div className={styles.length}>{formatLengthMs(track.duration_ms)}</div>
                     <div className={styles.actions}>
-                      <AudioPlayer url={track.preview_url} refresh={props.input} />
+                      <AudioPlayer 
+                        url={track.preview_url}
+                        isPlaying={playing}
+                        updatePlaying={(val) => setPlaying(val)}
+                      />
                       <i 
                         className={`${styles.icon} material-icons`}
                         onClick={() => props.addSong(track)}

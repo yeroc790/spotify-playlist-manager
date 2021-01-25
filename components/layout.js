@@ -44,7 +44,7 @@ export default function Layout({ children, playlist, select, isErr, message }) {
       </header>
       <main>{children}</main>
       <footer className={styles.footer}>
-        <p>Created by {' '}<a href="https://github.com/yeroc790">Corey Hansen</a>, 2020</p>
+        <p>Created by {' '}<a href="https://github.com/yeroc790">Corey Hansen</a>, 2021</p>
       </footer>
     </div>
   )

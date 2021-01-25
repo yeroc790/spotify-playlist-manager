@@ -112,11 +112,14 @@
 
 .tracks .actions {
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .tracks .actions .icon {
   display: inline-block;
-  width: 50%;
   color: #0070f3;
 }
 

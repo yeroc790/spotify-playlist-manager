@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import styles from '../styles/AudioPlayer.module.css'
 
-const useAudio = (url, isPlaying, updatePlaying) => {
+const useAudio = (url, updatePlaying) => {
   if (!url) return [undefined, undefined]
   const [audio] = useState(new Audio(url))
   const [playing, setPlaying] = useState(false)
@@ -48,7 +48,7 @@ const useAudio = (url, isPlaying, updatePlaying) => {
 }
 
 const Player = ({ url, isPlaying, updatePlaying }) => {
-  const [playing, toggle] = useAudio(url, isPlaying, updatePlaying)
+  const [playing, toggle] = useAudio(url, updatePlaying)
 
   useEffect(() => {
     if (!isPlaying && playing) {
