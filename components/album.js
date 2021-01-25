@@ -9,6 +9,7 @@ const url = 'http://localhost:3000/api/spotify/album/'
 
 export default function Albums(props) {
   const [album, setAlbum] = useState({})
+  const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -101,7 +102,11 @@ export default function Albums(props) {
                 </div>
                 <div className={styles.length}>{formatLengthMs(song.duration_ms)}</div>
                 <div className={styles.actions}>
-                  <AudioPlayer url={song.preview_url} />
+                  <AudioPlayer 
+                    url={song.preview_url}
+                    isPlaying={playing}
+                    updatePlaying={(val) => setPlaying(val)}
+                  />
                   <ActionIcon
                     icon="add"
                     onClick={() => props.addSong(song)}
