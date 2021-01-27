@@ -1,16 +1,10 @@
 import styles from '../styles/AlbumCard.module.css'
 import Tooltip from '@material-ui/core/Tooltip'
 import ActionIcon from './actionIcon'
+import moment from 'moment'
 
 const formatDate = (dateStr) => {
-  if (dateStr.length == 4) return dateStr // just the year
-
-  let arr = dateStr.split('-')
-  let date = new Date(arr[0], arr[1], arr[2])
-  let [_, day, year] = date.toLocaleDateString("en-US").split('/')
-  let month = date.toLocaleString('default', { month: 'short' })
-
-  return month + ' ' + day + ', ' + year
+  return moment(dateStr).format('MMM DD, YYYY')
 }
 
 export default function AlbumCard (props) {

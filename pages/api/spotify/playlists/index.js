@@ -15,16 +15,17 @@ export default async function handler(req, res) {
     res.end('Unauthorized Request')
     return
   }
-  let o = offset
-  if (!offset) o = 0
-  let playlists = await getPlaylists(session.user.name, o, session.accessToken).catch(() => {
-    res.status(401)
-    res.setHeader('Content-Type', 'text/html')
-    res.end('Invalid Token')
-    return
-  })
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(playlists))
+  
+  try {
+    let o = offset
+    if (!offset) o = 0
+    let playlists = await getPlaylists(session.user.name, o, session.accessToken)
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(playlists))
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
+  }
 }

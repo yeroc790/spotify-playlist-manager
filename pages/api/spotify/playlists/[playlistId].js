@@ -19,29 +19,23 @@ export default async function handler(req, res) {
     return
   }
 
-  let playlist
-  let err = false
-  let o = offset
-  if (!offset) o = 0
-  if (tracks) {
-    playlist = await getPlaylistTracks(playlistId, o, session.accessToken)
-      .catch(() => {err = true})
-  } else if (uris) {
-    playlist = await getPlaylistUris(playlistId, o, session.accessToken)
-      .catch(() => {err = true})
-  } else {
-    playlist = await getPlaylist(playlistId, session.accessToken)
-      .catch(() => {err = true})
+  try {
+    let data
+    let o = offset
+    if (!offset) o = 0
+    if (tracks) {
+      data = await getPlaylistTracks(playlistId, o, session.accessToken)
+    } else if (uris) {
+      data = await getPlaylistUris(playlistId, o, session.accessToken)
+    } else {
+      data = await getPlaylist(playlistId, session.accessToken)
+    }
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(data))
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
   }
-
-  if (err) {
-    res.status(401)
-    res.setHeader('Content-Type', 'text/html')
-    res.end('Error getting playlist')
-    return
-  }
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(playlist))
 }

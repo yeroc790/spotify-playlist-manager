@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return
   }
 
-  if (!req.body.playlistId || !req.body.songs) {
+  if (!req.body.playlistId || !req.body.songs || req.body.songs.length == 0) {
     res.status(401)
     res.setHeader('Content-Type', 'text/html')
     res.end('Invalid body')
@@ -19,15 +19,13 @@ export default async function handler(req, res) {
 
   try {
     await addSong(req.body.playlistId, req.body.songs, session.accessToken)
-  } catch (error) {
-    console.log('error adding song: ', error)
-    res.status(401)
+    res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
-    res.end('Error adding song')
+    res.end('Success')
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
     return
   }
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/html')
-  res.end('Success')
 }

@@ -19,15 +19,12 @@ export default async function handler(req, res) {
 
   try {
     await removeSongs(req.body.playlistId, req.body.tracks, req.body.snapshotId, session.accessToken)
-  } catch (error) {
-    console.log('error removing songs: ', error)
-    res.status(401)
+    res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
-    res.end('Error removing songs')
-    return
+    res.end('Success')
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
   }
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/html')
-  res.end('Success')
 }

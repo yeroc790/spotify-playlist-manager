@@ -1,27 +1,50 @@
 import styles from '../styles/Artist.module.css'
 import Image from './image'
 import AlbumCard from './albumCard'
-import useSWR from 'swr'
+import ActionIcon from './actionIcon'
+import { useState, useEffect } from 'react'
+import { isEmptyObject } from '../lib/utils'
+import axios from 'axios'
 
 export default function Artist(props) {
-  if (!props.artistID) return <div>Invalid artist id</div>
-
   const artistUrl = 'http://localhost:3000/api/spotify/artist/' + props.artistID
   const albumsUrl = 'http://localhost:3000/api/spotify/artist/albums/' + props.artistID
-  const { data: artist, error: artistError } = useSWR(artistUrl)
-  const { data: albums, error: albumsError} = useSWR(albumsUrl)
-  if (artistError) return <div className='message'>Error fetching artist</div>
-  if (!artist) return <div className='message'>Loading...</div>
 
-  if (albumsError) return <div className='message'>Error fetching artist</div>
-  if (!albums) return <div className='message'>Loading...</div>
+  const [artist, setArtist] = useState({})
+  const [albums, setAlbums] = useState({})
+  const [errMsg, setErrMsg] = useState('')
+  const [page, setPage] = useState(1)
 
-  const albumGroups = [
-    { type: 'album', name: 'Albums'},
-    { type: 'single', name: 'Singles'},
-    { type: 'appears_on', name: 'Appears On'},
-    { type: 'compilation', name: 'Compilations'}
-  ]
+  useEffect(() => {
+    loadArtist()
+  }, [])
+
+  useEffect(() => {
+    loadAlbums()
+  }, [page])
+
+  const loadArtist = async () => {
+    try {
+      let res = await axios.get(artistUrl)
+      setArtist(res.data)
+    } catch (error) {
+      let msg = 'Error getting artist: ' + error.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
+  }
+
+  const loadAlbums = async () => {
+    try {
+      let offset = (page-1)*20
+      let res = await axios.get(albumsUrl, { params: { offset: offset }})
+      setAlbums(res.data)
+    } catch (error) {
+      let msg = 'Error getting artist\'s albums: ' + error.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
+  }
 
   const getGenreLink = (genre) => {
     genre = genre.replaceAll('-', '')
@@ -30,13 +53,64 @@ export default function Artist(props) {
     return 'http://everynoise.com/engenremap-' + genre + '.html'
   }
 
+  const albumGroups = [
+    { type: 'album', name: 'Albums'},
+    { type: 'single', name: 'Singles'},
+    { type: 'appears_on', name: 'Appears On'},
+    { type: 'compilation', name: 'Compilations'}
+  ]
+
+  const showNext = () => {
+    return (albums.total > page*20) ? true : false
+  }
+
+  const showBack = () => {
+    return (page > 1) ? true : false
+  }
+
+  const next = () => {
+    if (page*20 < albums.total) {
+      setPage(page+1)
+    }
+  }
+
+  const back = () => {
+    if (page > 1) setPage(page-1)
+  }
+
+  if (errMsg) return <div className="message">{errMsg}</div>
+  if (isEmptyObject(albums) || isEmptyObject(artist)) return <div className='message'>Loading...</div>
   return (
     <div className={styles.container}>
       {artist && <>
         {/* image */}
         {artist.images &&
-          <div className="pageImg">
-            <Image images={artist.images} />
+          <div className={styles.imageContainer}>
+            <div className={styles.backArrow}>
+              {showBack() &&
+                <ActionIcon
+                  icon="keyboard_arrow_left"
+                  onClick={() => back()}
+                  changeAfterClick={false}
+                  resetOnClick
+                  resetTime="500"
+                />
+              }
+            </div>
+            <div className="pageImg">
+              <Image images={artist.images} />
+            </div>
+            <div className={styles.nextArrow}>
+              {showNext() && 
+                <ActionIcon
+                  icon="keyboard_arrow_right"
+                  onClick={() => next()}
+                  changeAfterClick={false}
+                  resetOnClick
+                  resetTime="500"
+                />
+              }
+            </div>
           </div>
         }
         {/* genres */}

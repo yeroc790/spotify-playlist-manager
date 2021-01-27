@@ -14,15 +14,14 @@ export default async function handler(req, res) {
     return
   }
 
-  let artist = await getArtist(artistId, session.accessToken)
-    .catch(() => {
-      res.status(401)
-      res.setHeader('Content-Type', 'text/html')
-      res.end('Error getting artist')
-      return
-    })
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(artist))
+  try {
+    let artist = await getArtist(artistId, session.accessToken)
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(artist))
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
+  }
 }

@@ -24,15 +24,12 @@ export default async function handler(req, res) {
 
   try {
     await createPlaylist(req.body.name, desc, isPublic, session.accessToken)
-  } catch (error) {
-    console.log('error adding playlist: ', error)
-    res.status(401)
+    res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
-    res.end('Error adding playlist')
-    return
+    res.end('Success')
+  } catch (err) {
+    res.status(err.body.error.status)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(err.body))
   }
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/html')
-  res.end('Success')
 }

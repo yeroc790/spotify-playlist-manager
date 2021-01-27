@@ -2,14 +2,17 @@ import styles from '../styles/Album.module.css'
 import AudioPlayer from '../components/audioPlayer'
 import ActionIcon from '../components/actionIcon'
 import Image from './image'
-import { formatLengthMs, isEmptyObject, fetchPath } from '../lib/utils'
+import { formatLengthMs, isEmptyObject } from '../lib/utils'
 import { useState, useEffect } from 'react'
+import axios from 'axios'
+import moment from 'moment'
 
 const url = 'http://localhost:3000/api/spotify/album/'
 
 export default function Albums(props) {
   const [album, setAlbum] = useState({})
   const [playing, setPlaying] = useState(false)
+  const [errMsg, setErrMsg] = useState('')
 
   useEffect(() => {
     loadData()
@@ -21,7 +24,6 @@ export default function Albums(props) {
 
     // set inPlaylist property for each track
     let items = data.tracks.items.map(track => {
-      // if (props.savedTracks.indexOf(track.uri) != -1)
       if (props.savedTracks.has(track.uri))
         track.inPlaylist = true
       else track.inPlaylist = false
@@ -29,17 +31,18 @@ export default function Albums(props) {
     })
     data.tracks.items = items
     setAlbum(data)
-    console.log('got album: ', album)
   }
   
-  const loadData = () => {
+  const loadData = async () => {
     let path = url + props.albumID
-    fetchPath(path).then(data => {
-      data && parseTracks(data)
-    }).catch(error => {
-      console.log('Error fetching album: ', error)
-      return <div className="message">Error fetching album</div>
-    })
+    try {
+      let res = await axios.get(path)
+      parseTracks(res.data)
+    } catch (error) {
+      let msg = 'Error getting album: ' + error.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
   }
 
   const filterArtists = (artists) => {
@@ -49,7 +52,19 @@ export default function Albums(props) {
     })
     return arr
   }
+
+  const formatDate = (dateStr) => {
+    if (!album) return
+    let format = ''
+    if (album.release_date_precision == 'day')
+      format = 'M/DD/YYYY'
+    else if (album.release_date_precision == 'month')
+      format = 'MMM YYYY'
+    else format = 'YYYY'
+    return moment(dateStr).format(format)
+  }
   
+  if (errMsg) return <div className="message">{errMsg}</div>
   if (isEmptyObject(album)) return <div className="message">Loading...</div>
   return (
     <div className={styles.container}>
@@ -62,18 +77,23 @@ export default function Albums(props) {
       
       {/* artist */}
       {album.artists && <>
-          <p className={styles.artists}>
-            {album.artists.map((artist, index) => {
-              if (artist.name == 'Various Artists') return artist.name
-              return (<span key={index}>
-                {index == 0 ? '' : ', '}
-                <a onClick={() => props.select(artist)}>
-                  {artist.name}
-                </a>
-              </span>)
-            })}
-          </p>
-        </>}
+        <p className={styles.artists}>
+          {album.artists.map((artist, index) => {
+            if (artist.name == 'Various Artists') return artist.name
+            return (<span key={index}>
+              {index == 0 ? '' : ', '}
+              <a onClick={() => props.select(artist)}>
+                {artist.name}
+              </a>
+            </span>)
+          })}
+        </p>
+      </>}
+
+      {/* date */}
+      {album.release_date &&
+        <div className={styles.date}>{formatDate(album.release_date)}</div>
+      }
 
       {/* songs */}
       <div className={styles.songs}>

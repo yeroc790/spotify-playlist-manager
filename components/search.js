@@ -3,7 +3,8 @@ import AlbumCard from './albumCard'
 import AudioPlayer from './audioPlayer'
 import styles from '../styles/Search.module.css'
 import { useState, useEffect } from 'react'
-import { fetchPath, formatLengthMs, formatDate } from '../lib/utils'
+import { formatLengthMs } from '../lib/utils'
+import axios from 'axios'
 
 export default function Search(props) {
   const [tracks, setTracks] = useState('')
@@ -11,6 +12,7 @@ export default function Search(props) {
   const [albums, setAlbums] = useState('')
   const [results, setResults] = useState()
   const [playing, setPlaying] = useState(false)
+  const [errMsg, setErrMsg] = useState('')
 
   // on input change
   useEffect(() => {
@@ -43,13 +45,19 @@ export default function Search(props) {
     loadResults()
   }, [props.type])
 
-  const loadResults = () => {
+  const loadResults = async () => {
     if (!props.input) return
     let input = encodeURIComponent(props.input)
     let path = 'http://localhost:3000/api/spotify/search/' + input + '/' + props.type
-    fetchPath(path).then(data => {
-      data && setResults(data)
-    })
+    
+    try {
+      let res = await axios.get(path)
+      setResults(res.data)
+    } catch (error) {
+      let msg = 'Error getting search results: ' + error.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
   }
 
   // clears all hooks by default, or ones passed in array
@@ -69,6 +77,7 @@ export default function Search(props) {
     props.updateType(x)
   }
 
+  if (errMsg) return <div className="message">{errMsg}</div>
   return (
     <div className={styles.container}>
       <div className={styles.searchBar}>

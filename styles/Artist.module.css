@@ -4,6 +4,22 @@
   z-index: 1;
 }
 
+.imageContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageContainer .backArrow i,
+.imageContainer .nextArrow i {
+  font-size: 50px !important;
+}
+
+.imageContainer .backArrow,
+.imageContainer .nextArrow {
+  width: 50px;
+}
+
 .genres {
   font-size: 20px;
   text-align: center;

@@ -2,11 +2,10 @@ import styles from '../styles/Playlist.module.css'
 import AudioPlayer from './audioPlayer'
 import ActionIcon from './actionIcon'
 import Image from './image'
-import { formatLengthMs, formatDate } from '../lib/utils'
+import { formatLengthMs, formatDate, formatDateOLD, isEmptyObject, dateToDays } from '../lib/utils'
 import Alert from '@material-ui/lab/Alert'
 import Slide from '@material-ui/core/Slide'
 import Tooltip from '@material-ui/core/Tooltip'
-import { fetchPath, isEmptyObject } from '../lib/utils'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -20,7 +19,8 @@ export default function Playlists(props) {
   const [loading, setLoading] = useState(true)
   const [loadingMessage, setLoadingMessage] = useState('')
   const [alertMessage, setAlertMessage] = useState('')
-  const [error, setError] = useState(false)
+  const [error, setError] = useState(false) // for action errors
+  const [errMsg, setErrMsg] = useState('') // for loading errors
 
   // mounted
   useEffect(() => {
@@ -43,13 +43,16 @@ export default function Playlists(props) {
     loadTracks()
   }, [page])
   
-  const loadPlaylistData = () => {
+  const loadPlaylistData = async () => {
     let path = url + props.playlistID
-    fetchPath(path).then(data => {
-      data && setPlaylist(data)
-    }).catch(error => {
-      console.log('Error fetching playlist: ', error)
-    })
+    try {
+      let res = await axios.get(path)
+      setPlaylist(res.data)
+    } catch (error) {
+      let msg = 'Error getting playlist: ' + error.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
   }
 
   // change to load only current page
@@ -155,6 +158,7 @@ export default function Playlists(props) {
       })
   }
 
+  if (errMsg) return <div className="message">{errMsg}</div>
   if (isEmptyObject(playlist)) return <div className="message">Loading...</div>
   return (
     <div className={styles.container}>
@@ -227,7 +231,7 @@ export default function Playlists(props) {
                   </a>
                 </div>
                 <div className={styles.length}>{formatLengthMs(song.track.duration_ms)}</div>
-                <div className={styles.date}>{formatDate(song.added_at)}</div>
+                <div className={styles.date}>{dateToDays(song.added_at)}</div>
                 <div className={styles.actions}>
                   <AudioPlayer 
                     url={song.track.preview_url}

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Layout from '../components/layout'
 import styles from '../styles/Home.module.css'
 import { getLoginURL } from '../lib/spotifyApi'
-import { signIn, useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/client'
 
 export async function getStaticProps() {
   const loginURL = getLoginURL()
