@@ -5,7 +5,8 @@ export default async function handler(req, res) {
   const {
     query: { 
       artistId: artistId,
-      offset: offset
+      offset: offset,
+      limit: limit
     },
   } = req
 
@@ -18,9 +19,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    let o = offset
-    if (!offset) o = 0
-    let albums = await getArtistAlbums(artistId, o, session.accessToken)
+    let albums = await getArtistAlbums(artistId, offset, limit, session.accessToken)
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify(albums))

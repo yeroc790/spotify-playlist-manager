@@ -1,9 +1,14 @@
-import { getAlbum } from '../../../../lib/spotifyApi'
+import { getAlbum, getAlbumTracks } from '../../../../lib/spotifyApi'
 import { getSession } from 'next-auth/client'
 
 export default async function handler(req, res) {
   const {
-    query: { albumId }
+    query: { 
+      albumId: albumId,
+      offset: offset,
+      limit: limit,
+      tracks: tracks
+    }
   } = req
 
   const session = await getSession({req})
@@ -14,13 +19,11 @@ export default async function handler(req, res) {
     return
   }
 
-  // switching logic (req.body.tracks) isn't working (but for now that's ok, maybe fix later for optimization)
-  // see /playlist/[playlistId] for correct implementation of params
-  
-  let data
   try {
-    if (req.body.tracks) {
-      data = await getAlbumTracks(albumId, session.accessToken)
+    let data
+    if (tracks) {
+      data = await getAlbumTracks(albumId, offset, limit, session.accessToken)
+      // data = {items: arr}
     } else {
       data = await getAlbum(albumId, session.accessToken)
     }

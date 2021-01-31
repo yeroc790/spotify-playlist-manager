@@ -1,6 +1,7 @@
 import styles from '../styles/Album.module.css'
-import AudioPlayer from '../components/audioPlayer'
-import ActionIcon from '../components/actionIcon'
+import AudioPlayer from './audioPlayer'
+import ActionIcon from './actionIcon'
+import PaginationIndex from './paginationIndex'
 import Image from './image'
 import { formatLengthMs, isEmptyObject } from '../lib/utils'
 import { useState, useEffect } from 'react'
@@ -8,38 +9,67 @@ import axios from 'axios'
 import moment from 'moment'
 
 const url = 'http://localhost:3000/api/spotify/album/'
+const limit = 50
 
 export default function Albums(props) {
   const [album, setAlbum] = useState({})
+  const [tracks, setTracks] = useState([])
   const [playing, setPlaying] = useState(false)
   const [errMsg, setErrMsg] = useState('')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
-    loadData()
+    loadAlbum()
+  }, [])
+
+  useEffect(() => {
+    loadTracks()
   }, [props.savedTracks])
+
+  useEffect(() => {
+    loadTracks()
+  }, [page])
 
   // takes album object and formats it
   const parseTracks = (data) => {
-    if (!data.tracks) return data
+    if (!data.items || data.items.length == 0) return
 
     // set inPlaylist property for each track
-    let items = data.tracks.items.map(track => {
+    let items = data.items.map(track => {
       if (props.savedTracks.has(track.uri))
         track.inPlaylist = true
       else track.inPlaylist = false
       return track
     })
-    data.tracks.items = items
-    setAlbum(data)
+    data.items = items
+    setTracks(data)
   }
   
-  const loadData = async () => {
+  const loadAlbum = async () => {
     let path = url + props.albumID
     try {
       let res = await axios.get(path)
+      setAlbum(res.data)
+    } catch (err) {
+      let msg = 'Error getting album: ' + err.response.data.error.message
+      console.log(msg)
+      setErrMsg(msg)
+    }
+  }
+
+  const loadTracks = async () => {
+    let path = url + props.albumID
+    try {
+      let offset = (page-1)*limit
+      let params = {
+        tracks: true,
+        offset: offset,
+        limit: limit
+      }
+      let res = await axios.get(path, { params: params })
       parseTracks(res.data)
-    } catch (error) {
-      let msg = 'Error getting album: ' + error.response.data.error.message
+    } catch (err) {
+      let msg = 'Error getting album tracks: ' + err.response.data.error.message
       console.log(msg)
       setErrMsg(msg)
     }
@@ -57,7 +87,8 @@ export default function Albums(props) {
     if (!album) return
     let format = ''
     if (album.release_date_precision == 'day')
-      format = 'M/DD/YYYY'
+      // format = 'M/DD/YYYY'
+      format = 'MMM YYYY'
     else if (album.release_date_precision == 'month')
       format = 'MMM YYYY'
     else format = 'YYYY'
@@ -90,20 +121,31 @@ export default function Albums(props) {
         </p>
       </>}
 
-      {/* date */}
+      {/* album info */}
       {album.release_date &&
-        <div className={styles.date}>{formatDate(album.release_date)}</div>
+        <div className={styles.info}>
+          {formatDate(album.release_date)} | {album.tracks.total} song{album.tracks.total.length == 1 ? '' : 's'}
+        </div>
+      }
+
+      {/* pagination */}
+      {album &&
+        <PaginationIndex
+          currentPage={page}
+          total={Math.ceil(album.tracks.total / limit)}
+          select={setPage}
+        />
       }
 
       {/* songs */}
       <div className={styles.songs}>
-        {(album.tracks && album.tracks.items) && <>
+        {(tracks.items && tracks.items.length != 0) && <>
           <div className={styles.song}>
             <div className={styles.title}>Title</div>
             <div className={styles.length}>Length</div>
             <div className={styles.actions}>Actions</div>
           </div>
-          {album.tracks.items.map((song, index) => {
+          {tracks.items.map((song, index) => {
             return (
               <div className={styles.song} key={index}>
                 <div className={styles.title}>
@@ -139,6 +181,14 @@ export default function Albums(props) {
           })}
         </>}
       </div>
+      {/* pagination */}
+      {album &&
+        <PaginationIndex
+          currentPage={page}
+          total={Math.ceil(album.tracks.total / limit)}
+          select={setPage}
+        />
+      }
     </div>
   )
 }

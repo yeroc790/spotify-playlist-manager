@@ -8,6 +8,7 @@ export default async function handler(req, res) {
       tracks: tracks,
       uris: uris,
       offset: offset,
+      limit: limit
     }
   } = req
 
@@ -21,12 +22,10 @@ export default async function handler(req, res) {
 
   try {
     let data
-    let o = offset
-    if (!offset) o = 0
     if (tracks) {
-      data = await getPlaylistTracks(playlistId, o, session.accessToken)
+      data = await getPlaylistTracks(playlistId, offset, limit, session.accessToken)
     } else if (uris) {
-      data = await getPlaylistUris(playlistId, o, session.accessToken)
+      data = await getPlaylistUris(playlistId, offset, limit, session.accessToken)
     } else {
       data = await getPlaylist(playlistId, session.accessToken)
     }

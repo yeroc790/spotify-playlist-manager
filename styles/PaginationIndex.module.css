@@ -1,0 +1,31 @@
+.container {
+  text-align: center;
+}
+
+.container:hover {
+  cursor: default;
+}
+
+.pageLink,
+.dots {
+  font-size: 20px;
+  color: #0070f3;
+}
+
+.pageLink {
+  margin: 0 10px;
+}
+
+.pageLink:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dots:hover {
+  cursor: default;
+}
+
+.currentPage {
+  font-weight: bold;
+  text-decoration: underline;
+}

@@ -4,7 +4,8 @@ import { getSession } from 'next-auth/client'
 export default async function handler(req, res) {
   const {
     query: {
-      offset: offset
+      offset: offset,
+      limit: limit
     }
   } = req
 
@@ -17,9 +18,7 @@ export default async function handler(req, res) {
   }
   
   try {
-    let o = offset
-    if (!offset) o = 0
-    let playlists = await getPlaylists(session.user.name, o, session.accessToken)
+    let playlists = await getPlaylists(session.user.name, offset, limit, session.accessToken)
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify(playlists))

@@ -8,7 +8,8 @@
 }
 
 .main {
-  padding: 5rem 0;
+  /* padding: 5rem 0; */
+  padding: 5rem 0 2rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -136,6 +137,12 @@
   text-decoration: underline;
 }
 
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .header .icon {
   font-size: 50px;
   color: #0070f3;
@@ -154,7 +161,9 @@
 }
 
 .header .title {
-  display: inline;
+  /* display: inline; */
+  display: inline-block;
+  max-width: 80%;
 }
 
 .content {

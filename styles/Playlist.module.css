@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 10px;
 }
 
 .imageContainer .backArrow i,
@@ -22,6 +23,16 @@
 .description {
   font-size: 20px;
   text-align: center;
+  /* margin-top: 0; */
+}
+
+.info {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.pagination {
+  margin-top: 15px;
 }
 
 .song.header {
@@ -35,8 +46,9 @@
 }
 
 .songs {
-  margin: auto;
-  margin-top: 20px;
+  /* margin: auto;
+  margin-top: 20px; */
+  margin: 20px auto;
   width: 80%;
 }
 

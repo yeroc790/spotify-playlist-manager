@@ -11,7 +11,11 @@ export default function ActionIcon({icon, onClick, color, isError, header=null, 
     if (inPlaylist) {
       setDisabled(true)
       setIconName('check')
+    } else {
+      setDisabled(false)
+      setIconName(icon)
     }
+
   }, [inPlaylist])
 
   // reset icon on error

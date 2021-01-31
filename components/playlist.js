@@ -1,8 +1,9 @@
 import styles from '../styles/Playlist.module.css'
 import AudioPlayer from './audioPlayer'
 import ActionIcon from './actionIcon'
+import PaginationIndex from './paginationIndex'
 import Image from './image'
-import { formatLengthMs, formatDate, formatDateOLD, isEmptyObject, dateToDays } from '../lib/utils'
+import { formatLengthMs, isEmptyObject, dateToDays } from '../lib/utils'
 import Alert from '@material-ui/lab/Alert'
 import Slide from '@material-ui/core/Slide'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -10,6 +11,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const url = 'http://localhost:3000/api/spotify/playlists/'
+const limit = 100
 
 export default function Playlists(props) {
   const [playlist, setPlaylist] = useState({})
@@ -59,7 +61,8 @@ export default function Playlists(props) {
   const loadTracks = async () => {
     try {
       setLoadingMessage('Loading tracks...')
-      let res = await axios.get('/api/spotify/playlists/' + props.playlistID, { params: { tracks: true, offset: ((page-1)*100) }})
+      let offset = (page-1)*limit
+      let res = await axios.get('/api/spotify/playlists/' + props.playlistID, { params: { tracks: true, offset: offset, limit: limit }})
       let arr = res.data.items
       setTracks(arr)
       setLoading(false)
@@ -69,7 +72,7 @@ export default function Playlists(props) {
   }
 
   const showNext = () => {
-    return (playlist.tracks.total > page*100) ? true : false
+    return (playlist.tracks.total > page*limit) ? true : false
   }
 
   const showBack = () => {
@@ -77,7 +80,7 @@ export default function Playlists(props) {
   }
 
   const next = () => {
-    if (page*100 < playlist.tracks.total) {
+    if (page*limit < playlist.tracks.total) {
       setPage(page+1)
     } else {
       console.log("can't go to next page")
@@ -106,7 +109,7 @@ export default function Playlists(props) {
         loadTracks()
 
         // update uri set for dashboard
-        let uris = new Set(props.urisInPlaylist)
+        let uris = new Set(props.urisInPlaylist())
         uris.delete(track.track.uri)
         props.updateUrisInPlaylist(uris)
       }).catch(err => {
@@ -119,43 +122,60 @@ export default function Playlists(props) {
   const removeAlbum = async (album) => {
     console.log('Removing ' + album.name + ' from playlist')
     
-    // get tracks in album
-    let res = await axios.get('/api/spotify/album/' + album.id, { data: {tracks: true}})
 
-    // generate array of track uris
-    // filter out tracks already in playlist
-    let arr = res.data.tracks.items.map(track => {
-      if (props.urisInPlaylist.has(track.uri))
-        return track.uri
-    }).filter(x => x !== undefined)
-
-    // build array in the form [{uri: 'foo'}]
-    let trackArr = arr.map(x => {
-      return {uri: x}
-    })
-
-    let data = {
-      playlistId: playlist.id,
-      snapshotId: playlist.snapshot_id,
-      tracks: trackArr
+    // declaring variables to use in the loop below
+    let max = Math.ceil(album.total_tracks/50)
+    let res
+    let params = {
+      tracks: true,
+      limit: 50
     }
-    axios.delete('/api/spotify/remove/songs', {data: data})
-      .then(() => {
-        setAlertMessage('Removed ' + album.name + ' from ' + playlist.name)
-        loadPlaylistData() // to update snapshot_id
-        loadTracks()
-        
-        // update uri set for dashboard
-        let uris = new Set(props.urisInPlaylist)
-        arr.forEach(uri => {
-          uris.delete(uri)
-        })
-        props.updateUrisInPlaylist(uris)
-      }).catch(err => {
-        console.log('Error removing album from playlist: ', err)
-        setError(true)
-        setAlertMessage('Error removing album from playlist')
+    let uris
+    let arr
+    let trackArr
+    let data
+
+    // get tracks in album
+    for (let i = 0; i < max; i++) {
+      params.offset = i*50
+      res = await axios.get('/api/spotify/album/' + album.id, { params: params })
+
+      // generate array of track uris
+      // filter out tracks already in playlist
+      uris = props.urisInPlaylist()
+      arr = res.data.items.map(track => {
+        if (uris.has(track.uri))
+          return track.uri
+      }).filter(x => x !== undefined)
+
+      // build array in the form [{uri: 'foo'}]
+      trackArr = arr.map(x => {
+        return {uri: x}
       })
+
+      data = {
+        playlistId: playlist.id,
+        snapshotId: playlist.snapshot_id,
+        tracks: trackArr
+      }
+      axios.delete('/api/spotify/remove/songs', {data: data})
+        .then(() => {
+          setAlertMessage('Removed ' + album.name + ' from ' + playlist.name)
+          loadPlaylistData() // to update snapshot_id
+          loadTracks()
+          
+          // update uri set for dashboard
+          let uris = new Set(props.urisInPlaylist())
+          arr.forEach(uri => {
+            uris.delete(uri)
+          })
+          props.updateUrisInPlaylist(uris)
+        }).catch(err => {
+          console.log('Error removing album from playlist: ', err)
+          setError(true)
+          setAlertMessage('Error removing album from playlist')
+        })
+    }
   }
 
   if (errMsg) return <div className="message">{errMsg}</div>
@@ -197,8 +217,29 @@ export default function Playlists(props) {
       }
       {/* description */}
       {playlist.description && <>
-        <p className={styles.description}>{playlist.description}</p>
+        <div className={styles.description}>{playlist.description}</div>
       </>}
+
+      {/* info */}
+      {playlist && <>
+        <div className={styles.info}>
+          {tracks.length > 0 && <>
+            {playlist.tracks.total} song{playlist.tracks.total == 1 ? '' : 's'}
+          </>}
+        </div>
+      </>}
+
+      {/* pagination */}
+      {playlist &&
+        <div className={styles.pagination}>
+          <PaginationIndex
+            currentPage={page}
+            total={Math.ceil(playlist.tracks.total / limit)}
+            select={setPage}
+          />
+        </div>
+      }
+
       {/* songs */}
       <div className={styles.songs}>
         {loading && <p className="smallMessage">{loadingMessage}</p>}
@@ -267,6 +308,15 @@ export default function Playlists(props) {
           })}
         </>}
       </div>
+
+      {/* pagination */}
+      {(playlist && tracks.length > 10) &&
+        <PaginationIndex
+          currentPage={page}
+          total={Math.ceil(playlist.tracks.total / limit)}
+          select={setPage}
+        />
+      }
     </div>
   )
 }

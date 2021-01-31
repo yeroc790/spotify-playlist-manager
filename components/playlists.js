@@ -1,6 +1,7 @@
 import styles from '../styles/Playlists.module.css'
 import PlaylistDetails from './playlistDetails'
 import ActionIcon from './actionIcon'
+import PaginationIndex from './paginationIndex'
 import Image from './image'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/client'
@@ -133,6 +134,8 @@ export default function Playlists(props) {
           }
         </div>
       </div>
+
+      {/* playlists */}
       <div className={styles.playlists}>
         {(playlists.items && playlists.items.length > 0) && <>
           {playlists.items.map((playlist) => {
@@ -176,6 +179,15 @@ export default function Playlists(props) {
           })}
         </>}
       </div>
+
+      {/* pagination */}
+      {playlists &&
+        <PaginationIndex
+          currentPage={page}
+          total={Math.ceil(playlists.total / 20)}
+          select={setPage}
+        />
+      }
     </div>
   )
 }

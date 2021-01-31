@@ -2,6 +2,7 @@ import styles from '../styles/Artist.module.css'
 import Image from './image'
 import AlbumCard from './albumCard'
 import ActionIcon from './actionIcon'
+import PaginationIndex from './paginationIndex'
 import { useState, useEffect } from 'react'
 import { isEmptyObject } from '../lib/utils'
 import axios from 'axios'
@@ -9,6 +10,7 @@ import axios from 'axios'
 export default function Artist(props) {
   const artistUrl = 'http://localhost:3000/api/spotify/artist/' + props.artistID
   const albumsUrl = 'http://localhost:3000/api/spotify/artist/albums/' + props.artistID
+  const limit = 20
 
   const [artist, setArtist] = useState({})
   const [albums, setAlbums] = useState({})
@@ -36,7 +38,7 @@ export default function Artist(props) {
 
   const loadAlbums = async () => {
     try {
-      let offset = (page-1)*20
+      let offset = (page-1)*limit
       let res = await axios.get(albumsUrl, { params: { offset: offset }})
       setAlbums(res.data)
     } catch (error) {
@@ -61,7 +63,7 @@ export default function Artist(props) {
   ]
 
   const showNext = () => {
-    return (albums.total > page*20) ? true : false
+    return (albums.total > page*limit) ? true : false
   }
 
   const showBack = () => {
@@ -69,7 +71,7 @@ export default function Artist(props) {
   }
 
   const next = () => {
-    if (page*20 < albums.total) {
+    if (page*limit < albums.total) {
       setPage(page+1)
     }
   }
@@ -127,6 +129,15 @@ export default function Artist(props) {
           </p>
         </>}
 
+        {/* pagination */}
+        {albums &&
+          <PaginationIndex
+            currentPage={page}
+            total={Math.ceil(albums.total / limit)}
+            select={setPage}
+          />
+        }
+
         {/* albums */}
         {albums && <>
           {albumGroups.map(group => {
@@ -153,6 +164,15 @@ export default function Artist(props) {
             )
           })}
         </>}
+
+        {/* pagination */}
+        {(albums && albums.items.length > 10) &&
+          <PaginationIndex
+            currentPage={page}
+            total={Math.ceil(albums.total / limit)}
+            select={setPage}
+          />
+        }
       </>}
     </div>
   )

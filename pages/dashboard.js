@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [searchType, setSearchType] = useState('artist')
   const [error, setError] = useState(false)
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
   const [urisInPlaylist, setUrisInPlaylist] = useState(new Set()) // holds array of song uris for checking to see if song is in playlist
 
   useEffect(() => {
@@ -49,10 +50,12 @@ export default function Dashboard() {
       setPlaylist(obj)
       clearExtraStates()
 
-      // on playlist select, fetch uris
+      // on selecting playlist for the first time, fetch uris
       // note: not running this on [playlist] change because back() also triggers that
       // and i only want to run this once as it's fetching everything
-      fetchAllUris(obj.tracks.total, obj.id)
+      if (view == 'home') {
+        fetchAllUris(obj.tracks.total, obj.id)
+      }
     }
     setSelected(obj)
     setView(obj.type)
@@ -98,6 +101,10 @@ export default function Dashboard() {
       return
     }
 
+    if (view == 'search') {
+      clearSelectedPlaylist()
+    }
+
     if (view == 'playlist') {
       setSearchInput('')
       setSearchType('artist')
@@ -116,6 +123,8 @@ export default function Dashboard() {
 
   // on playlist select, fetches all songs and stores the uris in urisInPlaylist Set
   const fetchAllUris = async (total, id) => {
+    console.log('fetching all uris')
+    setLoading(true)
     let totalPages = Math.ceil(total/100)
 
     let uris = new Set()
@@ -129,53 +138,72 @@ export default function Dashboard() {
       })
     }
     setUrisInPlaylist(uris)
+    setLoading(false)
   }
 
   const addAlbum = async (album) => {
-    // console.log('adding album to playlist: ', album)
+    console.log('adding album to playlist: ', album)
     
     try {
+
+      // declare variables to use in the loop below
+      let max = Math.ceil(album.total_tracks/50)
+      let res
+      let params = {
+        tracks: true,
+        limit: 50
+      }
+      let arr
+      let diff
+      let data
+      let uris
+
       // get tracks in album
-      let res = await axios.get('/api/spotify/album/' + album.id, { data: {tracks: true}})
+      for (let i = 0; i < max; i++) {
+        params.offset = i*50
+        res = await axios.get('/api/spotify/album/' + album.id, { params: params })
 
-      // generate array of track uris
-      // filter out tracks already in playlist
-      let arr = res.data.tracks.items.map(track => {
-        if (!urisInPlaylist.has(track.uri))
-          return track.uri
-      }).filter(x => x !== undefined)
+        // generate array of track uris
+        // filter out tracks already in playlist
+        arr = res.data.items.map(track => {
+          if (!urisInPlaylist.has(track.uri))
+            return track.uri
+        }).filter(x => x !== undefined)
 
-      if (arr.length == 0) {
-        setMessage('Album is already in playlist')
-        return
+        if (arr.length == 0) {
+          setMessage('Album is already in playlist')
+          return
+        }
+
+        diff = album.total_tracks - arr.length
+        if (max == 1) console.log('Filtered out ' + diff)
+
+        data = {
+          playlistId: playlist.id,
+          songs: arr
+        }
+        axios({
+          method: 'post',
+          url: '/api/spotify/add/song',
+          data: data
+        }).then(() => {
+          if (max > 1) {
+            setMessage('Added ' + album.name + ' to ' + playlist.name + ' (' + (i+1) + '/' + max)
+          } else if (album.total_tracks == arr.length) 
+            setMessage('Added ' + album.name + ' to ' + playlist.name)
+          else
+            setMessage('Added ' + arr.length + ' songs from ' + album.name + ' to ' + playlist.name)
+
+          // append songs to urisInPlaylist
+          uris = new Set(urisInPlaylist)
+          arr.forEach(uris.add, uris)
+          setUrisInPlaylist(uris)
+        }).catch((err) => {
+          console.log('error adding album to playlist: ', err)
+          setError(true)
+          setMessage('Error adding album to playlist')
+        })
       }
-
-      let diff = res.data.tracks.items.length - arr.length
-      console.log('Filtered out ' + diff)
-
-      let data = {
-        playlistId: playlist.id,
-        songs: arr
-      }
-      axios({
-        method: 'post',
-        url: '/api/spotify/add/song',
-        data: data
-      }).then(() => {
-        if (res.data.tracks.items.length == arr.length) 
-          setMessage('Added ' + album.name + ' to ' + playlist.name)
-        else
-          setMessage('Added ' + arr.length + ' songs from ' + album.name + ' to ' + playlist.name)
-
-        // append songs to urisInPlaylist
-        let uris = new Set(urisInPlaylist)
-        uris.add(arr)
-        setUrisInPlaylist(uris)
-      }).catch((err) => {
-        console.log('error adding album to playlist: ', err)
-        setError(true)
-        setMessage('Error adding album to playlist')
-      })
     } catch (error) {
       console.log('error: ', error)
     }
@@ -183,7 +211,7 @@ export default function Dashboard() {
 
   const addSong = (song) => {
     // console.log('adding ' + song.name + ' to ' + playlist.name)
-    
+    console.log('adding song. uris: ', urisInPlaylist)
     if (urisInPlaylist.has(song.uri)) {
       console.log('song already in playlist')
       return
@@ -268,10 +296,10 @@ export default function Dashboard() {
                   header="true"
                 />
               }
-              {view == 'home' &&
-                <p className={styles.description}>Select a playlist to get started</p>
-              }
             </div>
+            {view == 'home' &&
+              <p className={styles.description}>Select a playlist to get started</p>
+            }
             
             <div className={styles.content}>
               {/* Select a playlist */}
@@ -285,14 +313,17 @@ export default function Dashboard() {
               
               {/* View playlist details */}
               {view == 'playlist' && <>
-                <Playlist 
-                  playlistID={selected.id}
-                  select={(obj) => select(obj)}
-                  removeSong={(song, index, snapshotId) => removeSong(song, index, snapshotId)}
-                  removeAlbum={(album, snapshotId) => removeAlbum(album, snapshotId)}
-                  urisInPlaylist={urisInPlaylist}
-                  updateUrisInPlaylist={(tracks) => updateUrisInPlaylist(tracks)}
-                />
+                {loading && <div className="message">Loading playlist tracks...</div>}
+                {!loading && 
+                  <Playlist 
+                    playlistID={selected.id}
+                    select={(obj) => select(obj)}
+                    removeSong={(song, index, snapshotId) => removeSong(song, index, snapshotId)}
+                    removeAlbum={(album, snapshotId) => removeAlbum(album, snapshotId)}
+                    urisInPlaylist={() => {return urisInPlaylist}}
+                    updateUrisInPlaylist={(tracks) => updateUrisInPlaylist(tracks)}
+                  />
+                }
               </>}
               
               {/* View search */}
